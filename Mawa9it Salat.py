@@ -1,6 +1,7 @@
 import requests
 import re
-
+import tkinter as tk
+from tkinter import ttk
 
 def validate_input(city, country):
     # Check if city and country contain only letters, spaces, and hyphens
@@ -34,16 +35,51 @@ def fetch_prayer_times(city, country):
     except Exception as e:
         return f"An unexpected error occurred: {e}"
 
-while True:
-    city = input("Enter the city: ")
-    country = input("Enter the country: ")
+def fetch_and_display_prayer_times():
+    city = city_entry.get()
+    country = country_entry.get()
 
     result = fetch_prayer_times(city, country)
-    if "Input validation error" in result:
-        print(result)
-    else:
-        print("Prayer Timings:")
-        for name, time in result.items():
-            print(f"{name}: {time}")
-        break
 
+    if "Input validation error" in result:
+        result_label.config(text=result)
+    else:
+        result_label.config(text="Prayer Timings:")
+
+        # Create a table for prayer timings
+        table = ttk.Treeview(window, columns=("Prayer", "Time"))
+        table.heading("#1", text="Prayer")
+        table.heading("#2", text="Time")
+        table.pack()
+
+        for name, time in result.items():
+            table.insert("", "end", values=(name, time))
+
+# Create the main application window
+window = tk.Tk()
+window.title("Prayer Times App")
+window.geometry("600x600")  # Set window size
+
+# Create and configure labels and entry widgets
+city_label = tk.Label(window, text="Enter City:")
+city_label.pack()
+
+city_entry = tk.Entry(window)
+city_entry.pack()
+
+country_label = tk.Label(window, text="Enter Country:")
+country_label.pack()
+
+country_entry = tk.Entry(window)
+country_entry.pack()
+
+# Create a button to fetch and display prayer times
+fetch_button = tk.Button(window, text="Fetch Prayer Times", command=fetch_and_display_prayer_times)
+fetch_button.pack()
+
+# Create a label to display the result
+result_label = tk.Label(window, text="", wraplength=400)
+result_label.pack()
+
+# Start the Tkinter main loop
+window.mainloop()
